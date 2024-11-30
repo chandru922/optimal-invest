@@ -1,0 +1,22 @@
+
+package chandru.portfolio;
+
+/**
+ *
+ * @author chand
+ */
+class Investment {
+    String name;
+    int cost;
+    double returnPercentage; // Changed to double to hold percentage value
+
+    public Investment(String name, int cost, double returnPercentage) {
+        this.name = name;
+        this.cost = cost;
+        this.returnPercentage = returnPercentage;
+    }
+
+    public double calculateActualReturn() {
+        return cost * (returnPercentage / 100); // Calculate actual return
+    }
+}
