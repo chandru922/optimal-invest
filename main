@@ -1,0 +1,239 @@
+package chandru.portfolio;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+public class InvestmentGUI extends JFrame {
+    private JTextField nameField, costField, returnField, budgetField;
+    private JTable investmentTable;
+    private DefaultTableModel tableModel;
+    private JTextArea resultArea;
+    private ArrayList<Investment> investments;
+
+    public InvestmentGUI() {
+        investments = new ArrayList<>();
+
+        // Set up the frame
+        setTitle("OPTIMAL INVESTMENT");
+        setSize(850, 650); // Increased size for better layout
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(new Color(40, 40, 40)); 
+        setLayout(new BorderLayout(15, 15));
+        
+        Font labelFont = new Font("Sans-Serif", Font.PLAIN, 16);
+        Font fieldFont = new Font("Sans-Serif", Font.PLAIN, 16);
+        Font buttonFont = new Font("Sans-Serif", Font.BOLD, 16);
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(6, 2, 15, 15)); 
+        inputPanel.setBackground(new Color(40, 40, 40));
+
+        JLabel nameLabel = new JLabel("INVESTMENT NAME:");
+        nameLabel.setForeground(Color.WHITE);
+        nameLabel.setFont(labelFont); 
+        inputPanel.add(nameLabel);
+
+        nameField = new JTextField();
+        nameField.setFont(fieldFont); 
+        inputPanel.add(nameField);
+
+        JLabel costLabel = new JLabel("COST:");
+        costLabel.setForeground(Color.WHITE);
+        costLabel.setFont(labelFont);
+        inputPanel.add(costLabel);
+
+        costField = new JTextField();
+        costField.setFont(fieldFont);
+        inputPanel.add(costField);
+
+        JLabel returnLabel = new JLabel("EXPECTED RETURN %:");
+        returnLabel.setForeground(Color.WHITE);
+        returnLabel.setFont(labelFont);
+        inputPanel.add(returnLabel);
+
+        returnField = new JTextField();
+        returnField.setFont(fieldFont);
+        inputPanel.add(returnField);
+
+        // Add Investment Button
+        JButton addButton = new JButton("ADD INVESTMENT");
+        addButton.setBackground(new Color(60, 179, 113)); 
+        addButton.setFont(buttonFont); 
+        addButton.setForeground(Color.WHITE); 
+        addButton.setFocusPainted(false); 
+        addButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        addButton.setOpaque(true);
+        addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
+        inputPanel.add(addButton);
+
+        // Remove Investment Button
+        JButton removeButton = new JButton("REMOVE INVESTMENT");
+        removeButton.setBackground(new Color(255, 69, 0)); // Red color
+        removeButton.setFont(buttonFont);
+        removeButton.setForeground(Color.WHITE);
+        removeButton.setFocusPainted(false);
+        removeButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        removeButton.setOpaque(true);
+        //removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        inputPanel.add(removeButton);
+
+        // Right panel with Budget and Calculate button
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BorderLayout(15, 15));
+        rightPanel.setBackground(new Color(40, 40, 40));
+
+        JPanel budgetPanel = new JPanel();
+        budgetPanel.setBackground(new Color(40, 40, 40));
+        JLabel budgetLabel = new JLabel("BUDGET:");
+        budgetLabel.setForeground(Color.WHITE);
+        budgetLabel.setFont(labelFont);
+        budgetPanel.add(budgetLabel);
+
+        budgetField = new JTextField(10);
+        budgetField.setFont(fieldFont);
+        budgetPanel.add(budgetField);
+        rightPanel.add(budgetPanel, BorderLayout.NORTH);
+
+        // Calculate Button
+        JButton calculateButton = new JButton("CALCULATE");
+        calculateButton.setBackground(new Color(100, 149, 237)); 
+        calculateButton.setFont(buttonFont);
+        calculateButton.setForeground(Color.WHITE);
+        calculateButton.setFocusPainted(false);
+        calculateButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        calculateButton.setOpaque(true);
+        calculateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        rightPanel.add(calculateButton, BorderLayout.CENTER);
+
+        // Table to display investments
+        String[] columnNames = {"Name", "Cost", "Return %", "Actual Return"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        investmentTable = new JTable(tableModel);
+        investmentTable.setFont(fieldFont);
+        investmentTable.setRowHeight(25);
+        investmentTable.getTableHeader().setFont(new Font("Sans-Serif", Font.BOLD, 16)); 
+        JScrollPane tableScrollPane = new JScrollPane(investmentTable);
+
+        // Text area for results
+        resultArea = new JTextArea(5, 20);
+        resultArea.setEditable(false);
+        resultArea.setLineWrap(true);
+        resultArea.setWrapStyleWord(true);
+        resultArea.setFont(fieldFont);
+        resultArea.setBackground(new Color(50, 50, 50));
+        resultArea.setForeground(Color.WHITE);
+        JScrollPane resultScrollPane = new JScrollPane(resultArea);
+
+        // Bottom panel with table and results
+        JPanel bottomPanel = new JPanel(new GridLayout(2, 1, 15, 15));
+        bottomPanel.setBackground(new Color(40, 40, 40));
+        bottomPanel.add(tableScrollPane);
+        bottomPanel.add(resultScrollPane);
+
+        // Add panels to frame
+        add(inputPanel, BorderLayout.WEST);
+        add(rightPanel, BorderLayout.EAST);
+        add(bottomPanel, BorderLayout.CENTER);
+
+        // Action listeners
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                int cost = Integer.parseInt(costField.getText());
+                double returnPercentage = Double.parseDouble(returnField.getText());
+
+                // Add investment to the table
+                Investment investment = new Investment(name, cost, returnPercentage);
+                investments.add(investment);
+                double actualReturn = investment.calculateActualReturn();
+                tableModel.addRow(new Object[]{name, cost, returnPercentage, actualReturn});
+
+                // Clear input fields after adding
+                nameField.setText("");
+                costField.setText("");
+                returnField.setText("");
+            }
+        });
+
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = investmentTable.getSelectedRow();
+                if (selectedRow != -1) { // Check if a row is selected
+                    // Remove investment from the list and table
+                    investments.remove(selectedRow);
+                    tableModel.removeRow(selectedRow);
+                    resultArea.setText("Investment removed successfully.\n");
+                } else {
+                    resultArea.setText("Please select an investment to remove.\n");
+                }
+            }
+        });
+
+        calculateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int budget = Integer.parseInt(budgetField.getText());
+                Investment[] investmentArray = investments.toArray(new Investment[0]);
+
+                float[] results = InvestmentPortfolio.knapsack(budget, investmentArray);
+                float maxReturn = results[0]; // Maximum return
+                float totalCost = results[1]; // Total cost of selected investments
+                float remainingBudget = budget - totalCost; // Calculate remaining budget
+
+                double profitPercentage = ((double) maxReturn / totalCost) * 100; // Calculate profit percentage
+
+                resultArea.setText("Maximum Return: " + maxReturn + "\n" +
+                        "Total Cost: " + totalCost + "\n" +
+                        "Profit Percentage: " + (totalCost > 0 ? profitPercentage : 0) + "%\n" +
+                        "Remaining Budget: " + remainingBudget + "\n" +
+                        "\n Opitmal Investments:\n");
+
+                InvestmentPortfolio.findSelectedInvestments(budget, investmentArray, resultArea);
+                suggestIncreasedBudget(budget, investmentArray, (int) maxReturn);
+            }
+        });
+    }
+
+    private void suggestIncreasedBudget(int budget, Investment[] investments, int currentMaxReturn) {
+        double optimalIncreasedBudget = budget;
+        int optimalReturn = currentMaxReturn;
+        double optimalProfitIncrease = 0;
+
+        // Check budget increases in 5% increments up to 20%
+        for (double increasePercentage = 0.05; increasePercentage <= 0.20; increasePercentage += 0.05) {
+            double increasedBudget = budget * (1 + increasePercentage);
+            float[] newResults = InvestmentPortfolio.knapsack((int) increasedBudget, investments);
+            float newMaxReturn = newResults[0];
+            float newTotalCost = newResults[1];
+
+            // Check if the new return is better and cost uses the increased budget
+            if (newMaxReturn > optimalReturn && newTotalCost > budget) {
+                optimalIncreasedBudget = increasedBudget;
+                optimalReturn = (int) newMaxReturn;
+                optimalProfitIncrease = newMaxReturn - currentMaxReturn;
+                break;  // Stop at the smallest increase that improves profit
+            }
+        }
+
+        // Suggest the increase if a better budget and return were found
+        if (optimalReturn > currentMaxReturn) {
+            resultArea.append("\nConsider increasing your budget to " + optimalIncreasedBudget + " to maximize profit.\n" +
+                    "Expected additional profit: " + optimalProfitIncrease + "\n");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new InvestmentGUI().setVisible(true);
+            }
+        });
+    }
+}
