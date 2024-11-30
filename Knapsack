@@ -1,0 +1,56 @@
+package chandru.portfolio;
+
+import javax.swing.*;
+
+class InvestmentPortfolio {
+    public static float[] knapsack(int budget, Investment[] investments) {
+        int n = investments.length;
+        var dp = new float[n + 1][budget + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int w = 0; w <= budget; w++) {
+                if (investments[i - 1].cost <= w) {
+                    dp[i][w] = (float) Math.max(dp[i - 1][w], dp[i - 1][w - investments[i - 1].cost] + investments[i - 1].calculateActualReturn());
+                } else {
+                    dp[i][w] = dp[i - 1][w];
+                }
+            }
+        }
+
+        // Backtrack to find total cost of selected investments
+        int w = budget;
+        int totalCost = 0;
+        for (int i = n; i > 0 && w > 0; i--) {
+            if (dp[i][w] != dp[i - 1][w]) {
+                totalCost += investments[i - 1].cost;
+                w -= investments[i - 1].cost;
+            }
+        }
+
+        // Return an array where index 0 is maximum return and index 1 is total cost
+        return new float[]{dp[n][budget], totalCost};
+    }
+
+    public static void findSelectedInvestments(int budget, Investment[] investments, JTextArea resultArea) {
+        int n = investments.length;
+        int[][] dp = new int[n + 1][budget + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int w = 0; w <= budget; w++) {
+                if (investments[i - 1].cost <= w) {
+                    dp[i][w] = (int) Math.max(dp[i - 1][w], dp[i - 1][w - investments[i - 1].cost] + investments[i - 1].calculateActualReturn());
+                } else {
+                    dp[i][w] = dp[i - 1][w];
+                }
+            }
+        }
+        // Traceback to find selected investments
+        int w = budget;
+        for (int i = n; i > 0 && w > 0; i--) {
+            if (dp[i][w] != dp[i - 1][w]) {
+                resultArea.append(investments[i - 1].name + "\n");
+                w -= investments[i - 1].cost;
+            }
+        }
+    }
+}
